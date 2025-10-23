@@ -1,7 +1,7 @@
-param(
+param( 
     [Parameter(Mandatory=$true)] $JSONFile,
     [switch]$Undo
-)
+ )
 
 function CreateADGroup() {
     param( [Parameter(Mandatory = $true)] $groupObject )
@@ -18,22 +18,11 @@ function CreateADGroup() {
     New-ADGroup -Name $name -GroupScope Global
 }
 
+
 function RemoveADGroup(){
     param( [Parameter(Mandatory=$true)] $groupObject )
 
-    # FIX: correctly extract the group name string instead of using -is which returns a Boolean
-    if ($groupObject.name -is [string]) {
-        $name = $groupObject.name
-    }
-    elseif ($groupObject.name -and $groupObject.name.value -is [string]) {
-        $name = $groupObject.name.value
-    }
-    else {
-        Write-Warning "Skipping group removal: could not determine name from object"
-        return
-    }
-
-    $name = $name.Trim()
+    $name = ($groupObject.name.value -is [string])
     Remove-ADGroup -Identity $name -Confirm:$False
 }
 
@@ -67,13 +56,13 @@ function CreateADUser(){
     }
     
     # Add to local admin as needed
-     if ( $userObject.local_admin -eq $True){
-         net localgroup administrators $Global:Domain\$username /add
-     }
-    #$add_command="net localgroup administrators $Global:Domain\$username /add"
-    #foreach ($hostname in $userObject.local_admin){
-    #    echo "Invoke-Command -Computer $hostname -ScriptBlock { $add_command }" | Invoke-Expression
-    #}
+    # if ( $userObject.local_admin -eq $True){
+    #     net localgroup administrators $Global:Domain\$username /add
+    # }
+    $add_command="net localgroup administrators $Global:Domain\$username /add"
+    foreach ($hostname in $userObject.local_admin){
+        echo "Invoke-Command -Computer $hostname -ScriptBlock { $add_command }" | Invoke-Expression
+    }
 }
 
 function RemoveADUser(){
@@ -99,6 +88,7 @@ function StrengthenPasswordPolicy(){
     secedit /configure /db c:\windows\security\local.sdb /cfg C:\Windows\Tasks\secpol.cfg /areas SECURITYPOLICY
     rm -force C:\Windows\Tasks\secpol.cfg -confirm:$false
 }
+
 
 $json = ( Get-Content $JSONFile | ConvertFrom-JSON)
 $Global:Domain = $json.domain
