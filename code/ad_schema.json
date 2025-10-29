@@ -10,14 +10,24 @@
     "users": [
 
         {
+            "local_admin": ["ws01"],
             "name": "Anna Nna",
-            "password": "P@ssw0rd789",
+            "password": "michael",
             "groups": [
                 "Employees"
             ]
         },
          {
+            "local_admin": ["ws02"],
             "name": "Job Ob",
+            "password": "mahal",
+            "groups": [
+                "Employees"
+            ]
+        },
+        {
+            "local_admin": ["ws01", "ws02", "dc1"],
+            "name": "Logolonyo Ogolonyo",
             "password": "P@ssw0rdABC",
             "groups": [
                 "Employees"
